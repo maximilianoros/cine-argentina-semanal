@@ -1,0 +1,8 @@
+"0","modelos<- autos %>%  group_by(tipo, MARCA) %>%  summarise(cantidad=n(), porcentaje=formattable::percent( (cantidad/sum(autos$pondera)),2)) %>% arrange(-cantidad)"
+"1","`summarise()` has grouped output by 'tipo'. You can override using the `.groups` argument.
+"
+"0","modelos15<-modelos[1:15,]"
+"0","modelos20<- modelos[1:20,]"
+"0",""
+"0",""
+"0",""

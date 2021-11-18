@@ -1,0 +1,1 @@
+"0","  autos %>% filter() %>% group_by(TIPO) %>% summarise(cantidad=n(), porcentaje=formattable::percent( (cantidad/sum(autos$pondera)),2)) %>% arrange(-cantidad)"

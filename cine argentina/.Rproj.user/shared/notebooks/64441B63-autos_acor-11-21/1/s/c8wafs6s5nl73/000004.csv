@@ -1,0 +1,38 @@
+"0",""
+"0",""
+"0","resumenxaño<- resumenxaño %>% select(año,autos) %>% arrange(-año,autos)"
+"1","Note: Using an external vector in selections is ambiguous.
+[34mi[39m Use `all_of(autos)` instead of `autos` to silence this message.
+[34mi[39m See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.
+[90mThis message is displayed once per session.[39m
+"
+"2","Error: Must subset columns with a valid subscript vector.
+[31mx[39m Subscript has the wrong type `data.frame<
+  OBJETO         : character
+  X.VEHICULO.    : character
+  RAZSOC         : double
+  DOMICILIO      : character
+  barrio         : character
+  ZONA_TRIBUTARIA: integer
+  MODELO_A       : double
+  VALUACION      : integer
+  MARCA          : character
+  TIPO           : character
+  a              : character
+  b              : character
+  c              : character
+  VALOR_HIST     : character
+  DEVENGADO      : character
+  PERCIBIDO      : character
+  tipo           : character
+  pondera        : double
+  dni            : character
+  primercu       : character
+  verif          : character
+  sexo           : character
+  barriomapa     : character
+  id             : double
+>`.
+[34mi[39m It must be numeric or character.
+[90mRun `rlang::last_error()` to see where the error occurred.[39m
+"

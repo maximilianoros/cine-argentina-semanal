@@ -1,0 +1,6 @@
+"0","COROLLA<- autos %>% filter(tipo==""COROLLA"" )  "
+"0","COROLLA<- COROLLA %>% unite(col = hola,b,c,sep = ""-"")"
+"0","COROLLA <- COROLLA %>% mutate(xe=case_when(str_detect(string = COROLLA$hola, pattern = ""XE"")==TRUE~1,"
+"0","                                           TRUE~0))"
+"0","COROLLA<- COROLLA %>% filter(xe==1)"
+"0","COROLLA %>% group_by(MODELO_A) %>% count()"

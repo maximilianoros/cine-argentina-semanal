@@ -1,0 +1,2 @@
+"0","#Cambio total"
+"0","GOL %>% filter(MODELO_A==""2019"")  %>% group_by(gas) %>% count()"

@@ -1,0 +1,1 @@
+"0","semana.36<- read.csv2(""semana36-03.09.csv"") %>% select(-entradas_total..v_is_pelicula_diario.)"

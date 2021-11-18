@@ -1,0 +1,7 @@
+"0",""
+"0",""
+"0","autos<- autos %>% rename(barrio=BARRIO)"
+"0","autos<- left_join(autos,nombreautos)"
+"1","Joining, by = ""barrio""
+"
+"0","autos %>% select(barrio, barriomapa) %>% unique()"

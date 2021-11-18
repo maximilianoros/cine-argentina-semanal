@@ -1,0 +1,5 @@
+"0","autos<- autos %>% separate(MODELO, into= c(""a"",""b"",""c""),sep=' ', extra='merge')
+"
+"2","Warning:"
+"2"," Expected 3 pieces. Missing pieces filled with `NA` in 7326 rows [1, 2, 3, 4, 5, 6, 7, 18, 32, 34, 35, 36, 37, 38, 83, 84, 85, 86, 87, 88, ...].
+"

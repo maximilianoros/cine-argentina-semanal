@@ -1,0 +1,3 @@
+"0","antiguedad<- autos %>% group_by(MODELO_A) %>%  summarise(cantidad=n(), porcentaje=formattable::percent( (cantidad/sum(autos$pondera)),2)) %>% arrange(MODELO_A)"
+"0",""
+"0","autos %>% summarise(mediana=median(MODELO_A), media=mean(MODELO_A), moda=mfv(MODELO_A))"

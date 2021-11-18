@@ -1,0 +1,33 @@
+---
+title: "cine argentina"
+author: "Maximiliano Ros"
+date: "12/11/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(pdftools)
+library(tabulizer)
+#library(tabulizerjars)
+library(readxl)
+```
+
+#SEMANAS DEL 2021 
+```{r}
+semana.36<- read.csv2("semana36-03.09.csv") %>% select(-entradas_total..v_is_pelicula_diario.)
+semana.37<- read.csv2("semana37-10.09.csv") %>% select(-entradas_total..v_is_pelicula_diario.)
+semana.38<- read.csv2("semana38-16.09.csv") %>% select(-entradas_total..v_is_pelicula_diario.)
+semana.39<- read.csv2("semana39-23.09.csv") %>% select(-entradas_total..v_is_pelicula_diario.)
+```
+
+```{r}
+datos.36<- semana.36 %>% group_by(ï..Fecha.Estreno) %>% summarise(sum(Espec..Semana))
+```
+ 
+
+

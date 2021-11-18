@@ -1,0 +1,7 @@
+"0",""
+"0","resumenxaño<-ECOSPORT %>% group_by(año=MODELO_A) %>% summarise(media=mean(VALUACION), mediana=median(VALUACION), varianza=var(VALUACION), desvio=sqrt(varianza), cv=formattable::percent((desvio/media),2))"
+"0",""
+"0","resumenxaño<- resumenxaño %>% select(año,mediana) %>% arrange(-año)"
+"0","resumenxaño<- resumenxaño %>% mutate(primer=resumenxaño[1,2] %>% pull())"
+"0",""
+"0","ECOSPORTresumen<- resumenxaño %>% mutate(varia=formattable::percent(((lag(x = mediana)/mediana)-1),2), var= formattable::percent(((mediana-primer)/primer),2), tipo=""ECOSPORT"")"

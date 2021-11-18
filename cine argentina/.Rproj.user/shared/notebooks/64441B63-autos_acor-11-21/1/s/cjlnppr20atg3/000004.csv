@@ -1,0 +1,6 @@
+"0",""
+"0","#Desestacionalizar provincia.Gretl confirma su presencia."
+"0",""
+"0","provincia.dest<- ts(inscripciones.iniciales$provincia, start=c(2014,01), end=c(2021,10), frequency=12)"
+"0","provincia.dest<- seasonal::seas(provincia.dest, outlier = NULL)"
+"0","plot(provincia.dest)"

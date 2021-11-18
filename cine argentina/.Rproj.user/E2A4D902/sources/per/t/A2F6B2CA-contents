@@ -1,0 +1,334 @@
+---
+title: "autos_motos_barrios"
+author: "Observatorio Economico"
+date: "16/3/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+setwd("C:\\Users\\alech\\OneDrive\\Documentos\\GitHub\\padron-contribuyentes\\autosmotosbarrios")
+
+library(tidyverse)
+library(stringr)
+library(modeest)
+library(leaflet)
+library(leaflet.extras)
+library(tmap)
+library(tmaptools)
+library(sf)
+
+library(fuzzyjoin)
+
+```
+
+```{r}
+autos<- read.csv("objeto_automovil_2.csv", header=T, sep=",", dec=",")
+autos<- autos %>% separate(MODELO,into = c("a","b","c","d","e","f","g", "h", "i", "j", "k", "l", "m", "n", "o"), sep = " ")
+
+autos<- autos %>% mutate(tipo=case_when(a=="NUEVO" ~ str_c(a,b, sep=" "),
+                                   TRUE ~ a))
+autos<- autos %>% mutate(pondera=1)
+
+autos<- autos %>% mutate(dni=substr(x =RAZSOC,start = 3,stop = 10),
+                         primercu=substr(x=RAZSOC, start = 0, stop=2),
+                         verif=substr(x=RAZSOC, start = 11, stop=11))
+autos$TIPO[str_detect(string = autos$TIPO,pattern = "PICK")]<-"PICK UP"
+
+autos$TIPO[str_detect(string=autos$TIPO, pattern = "SEDAN 5")]<-"SEDAN 5 PUERTAS"
+autos$TIPO[str_detect(string=autos$TIPO, pattern = "5EDAN")]<-"SEDAN 5 PUERTAS"
+autos$TIPO[str_detect(string=autos$TIPO, pattern = "5 PUERTAS")]<-"SEDAN 5 PUERTAS"
+autos$TIPO[str_detect(string=autos$TIPO, pattern = "SEDAN5")]<-"SEDAN 5 PUERTAS"
+
+autos$TIPO[str_detect(string=autos$TIPO, pattern = "SEDAN 4")]<-"SEDAN 4 PUERTAS"
+autos$TIPO[str_detect(string=autos$TIPO, pattern = "SAEDAN 4")]<-"SEDAN 4 PUERTAS"
+
+autos$TIPO[str_detect(string=autos$TIPO, pattern = "SEDAN 2")]<-"SEDAN 2 PUERTAS"
+
+autos$TIPO[str_detect(string=autos$TIPO, pattern = "SETAS 3")]<-"SEDAN 3 PUERTAS"
+
+
+autos<- autos %>% mutate(sexo=case_when(primercu=="20"~"Hombres",
+                                        primercu=="27"~ "Mujeres",
+                                        primercu%in%c("30","33", "34") ~"Empresa",
+                                        primercu=="23" & verif=="9" ~ "Hombres",
+                                        primercu=="23" & verif =="4" ~ "Mujeres",
+                                        TRUE ~ "Indefinido"))
+autos<- autos %>% filter(sexo%in%c("Hombres", "Mujeres"))
+
+#write.csv( autos,"autos.csv")
+```
+## Tipos de autos más comunes
+```{r}
+  autos %>% filter() %>% group_by(TIPO) %>% summarise(cantidad=n(), porcentaje=formattable::percent( (cantidad/sum(autos$pondera)),2)) %>% arrange(-cantidad)
+```
+
+# Marcas de autos más comunes
+```{r}
+comunes<- autos %>% group_by(MARCA) %>% summarise(cantidad=n(), porcentaje=formattable::percent( (cantidad/sum(autos$pondera)),2)) %>% arrange(-cantidad)
+
+
+
+```
+# Modelos de autos más comunes
+```{r}
+modelos<- autos %>%  group_by(tipo, MARCA) %>%  summarise(cantidad=n(), porcentaje=formattable::percent( (cantidad/sum(autos$pondera)),2)) %>% arrange(-cantidad)
+
+modelos15<-modelos[1:15,]
+modelos20<- modelos[1:20,]
+
+
+
+```
+# Antigüedad del parque automotor
+```{r}
+antiguedad<- autos %>% group_by(MODELO_A) %>%  summarise(cantidad=n(), porcentaje=formattable::percent( (cantidad/sum(autos$pondera)),2)) %>% arrange(MODELO_A)
+
+autos %>% summarise(mediana=median(MODELO_A), media=mean(MODELO_A), moda=mfv(MODELO_A))
+
+autos %>% group_by(sexo) %>% summarise(mediana=median(MODELO_A), media=mean(MODELO_A), moda=mfv(MODELO_A))
+```
+
+### Gráfico Antigüedad
+```{r}
+antiguedad  %>%  ggplot(mapping=aes( x=MODELO_A, y =cantidad, label=cantidad)) + geom_col() + geom_text(position = position_nudge(y=300)) + scale_x_continuous(labels = as.character(antiguedad$MODELO_A), breaks = antiguedad$MODELO_A) + theme(axis.text.x =element_text(angle = 90 ))  
+
+```
+
+# Hibridos
+```{r}
+prius<- autos %>% filter(tipo=="PRIUS")
+COROLLA<- autos %>% filter(tipo=="COROLLA" & b=="HV")
+
+rav<- autos %>% filter(tipo%in%c("RAV", "RAV4") & b=="HV")
+
+toyotahibrido<-autos %>% filter(b=="HV")
+
+mondeo<-autos %>% filter(tipo=="MONDEO" & b=="HIBRIDO")
+
+rangerover<- autos %>% filter(MARCA=="LAND ROVER" & c=="EVOQUE")
+
+hibridos<- bind_rows(toyotahibrido,mondeo,rangerover)
+# write.csv(hibridos, "hibridos.csv")
+```
+
+# Gol
+```{r}
+GOL<- autos %>% filter(tipo=="GOL" & b=="TREND" & TIPO=="SEDAN 5 PUERTAS" , c%in% c("1.6", "TRENDLINE")) %>% mutate(gas=case_when(e=="GAS" & MODELO_A %in% c("2018", "2019") ~1,
+                                                                                                                                  TRUE~0))  %>% filter(gas==0)
+GOL %>% group_by(MODELO_A) %>% count()
+GOL %>% filter(MODELO_A=="2019")
+resumenxaño<-GOL %>% group_by(año=MODELO_A) %>% summarise(media=mean(VALUACION), mediana=median(VALUACION), varianza=var(VALUACION), desvio=sqrt(varianza), cv=formattable::percent((desvio/media),2))
+
+resumenxaño<- resumenxaño %>% select(año,mediana) %>% arrange(-año)
+resumenxaño<- resumenxaño %>% mutate(primer=resumenxaño[1,2] %>% pull())
+
+GOLresumen<- resumenxaño %>% mutate(varia=formattable::percent(((lag(x = mediana)/mediana)-1),2), var= formattable::percent(((mediana-primer)/primer),2), tipo="GOL")
+```
+
+# ECOSPORT
+```{r}
+ECOSPORT<- autos %>% filter(tipo=="ECOSPORT" & b%in%c("1.6","1.6L","SE","S") ) 
+ECOSPORT %>% group_by(MODELO_A) %>% count()
+
+resumenxaño<-ECOSPORT %>% group_by(año=MODELO_A) %>% summarise(media=mean(VALUACION), mediana=median(VALUACION), varianza=var(VALUACION), desvio=sqrt(varianza), cv=formattable::percent((desvio/media),2))
+
+resumenxaño<- resumenxaño %>% select(año,mediana) %>% arrange(-año)
+resumenxaño<- resumenxaño %>% mutate(primer=resumenxaño[1,2] %>% pull())
+
+ECOSPORTresumen<- resumenxaño %>% mutate(varia=formattable::percent(((lag(x = mediana)/mediana)-1),2), var= formattable::percent(((mediana-primer)/primer),2), tipo="ECOSPORT")
+```
+# COROLLA
+```{r}
+COROLLA<- autos %>% filter(tipo=="COROLLA" )  
+COROLLA<- COROLLA %>% unite(col = hola,b,c,sep = "-")
+COROLLA <- COROLLA %>% mutate(xe=case_when(str_detect(string = COROLLA$hola, pattern = "XE")==TRUE~1,
+                                           TRUE~0))
+COROLLA<- COROLLA %>% filter(xe==1)
+COROLLA %>% group_by(MODELO_A) %>% count()
+
+resumenxaño<-COROLLA %>% group_by(año=MODELO_A) %>% summarise(media=mean(VALUACION), mediana=median(VALUACION), varianza=var(VALUACION), desvio=sqrt(varianza), cv=formattable::percent((desvio/media),2))
+
+resumenxaño<- resumenxaño %>% select(año,mediana) %>% arrange(-año)
+resumenxaño<- resumenxaño %>% mutate(primer=resumenxaño[1,2] %>% pull())
+
+COROLLAresumen<- resumenxaño %>% mutate(varia=formattable::percent(((lag(x = mediana)/mediana)-1),2), var= formattable::percent(((mediana-primer)/primer),2), tipo="COROLLA")
+```
+
+# HILUX
+```{r}
+HILUX<- autos %>% filter(tipo=="HILUX"  & b=="4X2"  )  
+HILUX<- HILUX %>% unite(col = hola,d,e,sep = "-")
+HILUX <- HILUX %>% mutate(srv=case_when(str_detect(string = HILUX$hola, pattern = "SRV")==TRUE & MODELO_A<=2016~1,
+                                        str_detect(string = HILUX$hola, pattern = "SRX")==TRUE & MODELO_A>2016 ~1,
+                                        str_detect(string = HILUX$hola, pattern = "SRV")==TRUE & MODELO_A==2021 ~1,
+                                           TRUE~0))
+
+
+HILUX<- HILUX %>% filter(srv==1) %>% arrange(-MODELO_A)
+
+HILUX %>% group_by(MODELO_A) %>% summarise(max(VALUACION), min(VALUACION)) 
+
+HILUX %>% group_by(MODELO_A) %>% count()
+
+resumenxaño<-HILUX %>% group_by(año=MODELO_A) %>% summarise(media=mean(VALUACION), mediana=median(VALUACION), varianza=var(VALUACION), desvio=sqrt(varianza), cv=formattable::percent((desvio/media),2), max=max(VALUACION))
+
+resumenxaño<- resumenxaño %>% select(año,max) %>% arrange(-año)
+resumenxaño<- resumenxaño %>% mutate(primer=resumenxaño[1,2] %>% pull())
+
+HILUXresumen<- resumenxaño %>% mutate(varia=formattable::percent(((lag(x = max)/max)-1),2), var= formattable::percent(((max-primer)/primer),2), tipo="HILUX")
+
+HILUXresumen<- HILUXresumen %>% rename(mediana=max)
+
+```
+
+# Resumenes
+```{r}
+resumenes<- bind_rows(GOLresumen, COROLLAresumen, ECOSPORTresumen, HILUXresumen)
+resumenes<- resumenes %>% select(año,mediana,var, varia, tipo) %>% rename("Valuación"=mediana)
+#write.csv(resumenes,"resumen.csv" )
+```
+```{r}
+tablavalores<- resumenes %>%  pivot_wider(names_from = tipo, values_from = c("Valuación","var","varia" ))
+tablavalores<- tablavalores %>% select(año,Valuación_GOL,Valuación_COROLLA,Valuación_ECOSPORT,Valuación_HILUX)
+tablavalores<- tablavalores %>% mutate(cuota_gol=((Valuación_GOL*0.025)*(1+0.06))/12,
+                                       cuota_corolla=((Valuación_COROLLA*0.025)*(1+0.06))/12,
+                                       cuota_ecosport=((Valuación_ECOSPORT*0.025)*(1+0.06))/12,
+                                       cuota_hilux=((Valuación_HILUX*0.025)*(1+0.06))/12)
+openxlsx::write.xlsx(tablavalores, "tablacuotas.xlsx")
+
+```
+
+# Mapas
+```{r}
+barrios<- st_read("Barrios.shp")
+
+nombres<- barrios %>% select(barrio)
+nombres<- data.frame(nombres)  %>% select(barrio)
+nombres<- nombres %>% mutate(id=seq(1,140, by=1))
+nombreautos<- autos %>% select(BARRIO) %>% unique()
+nombreautos<- nombreautos %>% rename(barrio=BARRIO)
+
+nombresunique<- stringdist_join(nombreautos, nombres)
+nombresunique<- nombresunique %>% rename(barrio=barrio.x, barriomapa=barrio.y)
+
+nombresunique<- nombresunique %>% distinct(barrio,.keep_all = T)
+
+nombreautos<- left_join(nombreautos, nombresunique)
+
+nombreautos<- nombreautos %>% mutate(barriomapa=case_when(barrio=="BEJARANO" & barriomapa=="BELGRANO" ~ "BEJARANO",
+                                               barrio=="SANTA RITA" & barriomapa=="SANTA ROSA" ~ "SANTA RITA",
+                                               TRUE ~ barriomapa))
+nombreautos<- nombreautos %>% mutate(barriomapa=case_when(barrio=="RCA.VENEZUELA" ~ "REPÚBLICA DE VENEZUELA",
+                                                          barrio== "P.BUENOS AIRES" ~"PUEBLO BUENOS AIRES",
+                                                          barrio== "ANT.ARGENTINA" ~"ANTARTIDA ARGENTINA",
+                                                          barrio== "RCIAL.SANTA ROSA" ~"RESIDENCIAL SANTA ROSA",
+                                                          barrio== "GUEMES-S.INVICO" ~"GUEMES INVICO",
+                                                          barrio== "C.DE ESTEPA" ~"CIUDAD DE ESTEPA",
+                                                          barrio== "C.DE  AREQUIPA" ~"CIUDAD DE AREQUIPA",
+                                                          barrio=="Ntra.SEÑORA DE LA ASUNCION" ~ "NTRA. SRA. DE LA ASUNCIÓN",
+                                                          barrio== "C.CORRENTINAS" ~"CIUDADES CORRENTINAS",
+                                                          barrio== "T.DE TACUARI" ~"TAMBOR DE TACUARÍ",
+                                                          barrio== "C.CANINDEYU" ~"CACIQUE CANINDEYÚ",
+                                                          barrio== "B.DE ASTRADA" ~"BERÓN DE ASTRADA",
+                                                          barrio== "PRESIDENTA CRISTINA FERNANDEZ DE KIRCHNER" ~"PTE. CRISTINA F. DE KIRCHNER",
+                                                          barrio== "PRESIDENTE DR. NESTOR CARLOS KIRCHNER" ~"CIUDAD DE AREQUIPA",
+                                                          barrio=="PARAJE PERICHON" ~ "Bº PARAJE PERICHÓN",
+                                                          barrio== "GOLF CLUB CORRIENTES(Bº CERRADO)" ~"GOLF CLUB",
+                                                          barrio== "CLUB DE CAMPO (Bº BUENA VISTA I)" ~"BUENA VISTA I",
+                                                          barrio== "DR.LUIS F. LELOIR" ~"DR. LUIS LELOIR",
+                                                          TRUE ~ barriomapa))
+
+
+nombreautos %>% filter(is.na(barriomapa))
+
+autos<- autos %>% rename(barrio=BARRIO)
+autos<- left_join(autos,nombreautos)
+autos %>% select(barrio, barriomapa) %>% unique()
+
+autosmapa<- autos %>% filter(!is.na(barriomapa))
+autosmapa<- autosmapa %>% rename(barrio2=barrio, barrio=barriomapa) 
+
+autosmapa2<- autosmapa %>% group_by(barrio) %>% summarise("Cantidad de autos:"=sum(pondera))
+
+autosmapa2<- inner_join(barrios,autosmapa2)
+
+autosmapa2<- autosmapa2 %>% select(-OBJECTID_1)
+
+
+
+autosxbarrio<- tm_shape(shp = autosmapa2)  +tm_polygons("Cantidad de autos:", title="Cantidad de autos:", alpha = 0.5,style="cont")
+tmap_mode("view")
+autosxbarrio
+```
+```{r}
+direcciones<- autos %>% separate(DOMICILIO, into=c("barrio", "calle", "numero", "nose"), sep="-")
+direcciones<- direcciones %>% mutate(direccion=glue::glue("{calle} {numero}, Corrientes Argentina"))
+dire2<- direcciones %>% select(direccion)
+dire2<-dire2[str_extract(dire2$direccion, pattern = "MENDOZA")=="MENDOZA",] 
+dire2<- as.vector(t(dire2))
+dire2<- dire2[!is.na(dire2)]
+
+dire3<- direcciones %>% select(direccion)
+dire3<-dire3[str_extract(dire3$direccion, pattern = "BOLIVAR")=="BOLIVAR",]
+dire3<- as.vector(t(dire3))
+dire3<- dire3[!is.na(dire3)]
+
+dire<- c(dire2,dire3)
+#geocode_OSM(dire2,server = "https://nominatim.openstreetmap.org")
+geoco<-geocode_OSM(dire ,server = "https://nominatim.openstreetmap.org")
+geocode_OSM("CATAMARCA 996, Corrientes Argentina" ,server = "https://nominatim.openstreetmap.org")
+
+
+geoco<- geoco %>% rename(direccion=query)
+direcciones<- left_join(direcciones, geoco)
+direcciones2<- direcciones %>% filter(!is.na(lat))
+
+l<-leaflet() %>% addTiles() 
+l %>%  leaflet::addCircleMarkers(data=direcciones2,lng=~lon, lat=~lat, clusterOptions = T)
+
+l %>% addHeatmap(data=direcciones2,lng=~lon, lat=~lat,radius = 7)
+
+```
+# Registros provinciales y municipales
+```{r}
+provincial<- read.csv("registro_provincia.csv", header = T, sep=";")
+ciudad<- read.csv("alta_autos_motos.csv", header=T, sep=";")
+ciudad$fecha<- lubridate::as_date(ciudad$fecha)
+
+provincial<- pivot_longer(provincial,-fecha)
+
+provincial$fecha<- lubridate::dmy(provincial$fecha)
+provincial<- provincial %>% separate(col = name,into = c("id", "departamento", "subdepartamento"), sep="_")
+provincial[,5][is.na(provincial[,5])]<-0
+
+autosprov<- provincial %>% filter(departamento!="CORRIENTES") %>%  group_by(fecha) %>% summarise(altas_prov=sum(value))
+autosciu<- provincial %>% filter(departamento=="CORRIENTES") %>%  group_by(fecha) %>% summarise(altas_ciu=sum(value))
+
+deserc<- left_join(autosprov,autosciu)
+deserc<- deserc %>% mutate(desercion=formattable::comma((altas_ciu/altas_prov),2))
+
+write.csv(deserc, "desercion.csv")
+
+p<-ggplot(deserc, mapping = aes(x=fecha, y =desercion)) +geom_line(color="RED") + geom_smooth(method = 'loess',se = FALSE)+labs(title = "Autos patentados en la ciudad por cada auto patentado en la provincia", subtitle = "enero-2016 a junio-2021") + scale_x_date(date_labels = "%Y-%B",breaks ='2 month' ,limits = c(min(deserc$fecha), max = max(deserc$fecha)),
+             expand=c(0,0))+ theme_minimal() + ylab('Índice de deserción') + theme(axis.text.x.bottom = element_text(angle = 90),panel.background = element_blank(),panel.grid = element_blank(),axis.line.x.bottom = element_line(color="BLACK"),axis.line.y.left = element_line(color="BLACK")) + xlab("")
+p
+
+ggplot(autosprov, mapping = aes(x=fecha, y=altas_prov)) + geom_line() + geom_line(data =autosciu,aes(x=fecha, y =altas_ciu), color="RED")
+
+ciudad<- left_join(autosciu,autosprov)
+ciudad<- ciudad %>% mutate(desercion=formattable::comma((altas_prov/altas_ciu),2))
+#ciudad2<- ciudad %>% select(-altas_motos)
+#write.csv(ciudad, "desercion.csv")
+
+p<-ggplot(ciudad, mapping = aes(x=fecha, y =desercion, label=c("altas_prov"))) + geom_line(aes(label=altas_ciu), color="RED")  +labs(title = "Autos patentados en la provincia por cada auto patentado en la ciudad") + theme_minimal() + xlab("") 
+p<-plotly::ggplotly(p,tooltip = c("fecha","desercion"))
+p
+
+onix<-autos %>% filter(a=="ONIX")
+kangoo<-autos %>% filter(a=="KANGOO")
+```
+
+

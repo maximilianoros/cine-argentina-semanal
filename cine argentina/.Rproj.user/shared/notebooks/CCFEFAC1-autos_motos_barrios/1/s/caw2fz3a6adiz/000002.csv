@@ -1,0 +1,3 @@
+"0","resumenes<- bind_rows(GOLresumen, COROLLAresumen, ECOSPORTresumen, HILUXresumen)"
+"0","resumenes<- resumenes %>% select(año,mediana,var, varia, tipo) %>% rename(""Valuación""=mediana)"
+"0","#write.csv(resumenes,""resumen.csv"" )"

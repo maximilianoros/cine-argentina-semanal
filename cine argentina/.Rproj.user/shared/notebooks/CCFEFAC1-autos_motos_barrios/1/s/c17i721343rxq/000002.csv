@@ -1,0 +1,2 @@
+"0","antiguedad  %>%  ggplot(mapping=aes( x=MODELO_A, y =cantidad, label=cantidad)) + geom_col() + geom_text(position = position_nudge(y=300)) + scale_x_continuous(labels = as.character(antiguedad$MODELO_A), breaks = antiguedad$MODELO_A) + theme(axis.text.x =element_text(angle = 90 ))  "
+"0",""

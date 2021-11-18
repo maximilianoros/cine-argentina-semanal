@@ -1,0 +1,1 @@
+"0","GOL %>% filter(MODELO_A==""2020"")  %>% group_by(gas) %>% count()"

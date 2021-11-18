@@ -1,0 +1,2 @@
+"0","ECOSPORT<- autos %>% filter(tipo==""ECOSPORT"" & b%in%c(""1.6"",""1.6L"",""SE"",""S"") ) "
+"0","ECOSPORT %>% group_by(MODELO_A) %>% count()"

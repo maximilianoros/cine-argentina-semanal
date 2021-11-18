@@ -1,0 +1,2 @@
+"0",""
+"0","autos %>% group_by(sexo) %>% summarise(mediana=median(MODELO_A), media=mean(MODELO_A), moda=mfv(MODELO_A))"

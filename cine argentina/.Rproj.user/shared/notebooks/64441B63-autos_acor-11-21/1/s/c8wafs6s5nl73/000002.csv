@@ -1,0 +1,8 @@
+"0",""
+"0","resumenxaño<- autos %>% group_by(año=MODELO_A) %>% summarise(autos=sum(pondera)/12,autos2=case_when(año==2021~ sum(pondera)/8, "
+"0","                    TRUE~sum(pondera)/12)) %>% distinct(año,autos2)"
+"1","`summarise()` has grouped output by 'año'. You can override using the `.groups` argument.
+"
+"0","ggplot(resumenxaño, aes(x=año))+"
+"0","  geom_line(aes(y=autos2))+"
+"0","  geom_point(aes(y=autos2))+ ggthemes::theme_wsj(base_size = 9)+labs(title=""Promedio mensual patentamientos"")"

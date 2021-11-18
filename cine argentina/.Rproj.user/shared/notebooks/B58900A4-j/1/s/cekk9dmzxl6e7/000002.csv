@@ -1,0 +1,6 @@
+"0","datos<- bind_rows(datos.36, datos.37,datos.38,datos.39,datos.40,datos.41,datos.42,datos.43,datos.44,datos.45,datos.46) %>% select(-c(Entradas.Total, Rank))
+"
+"2","Error: Can't subset columns that don't exist.
+[31mx[39m Column `Entradas.Total` doesn't exist.
+[90mRun `rlang::last_error()` to see where the error occurred.[39m
+"
