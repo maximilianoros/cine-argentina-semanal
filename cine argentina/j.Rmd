@@ -11,8 +11,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 library(tidyverse)
-library(pdftools)
-library(tabulizer)
+#library(pdftools)
+#library(tabulizer)
 #library(tabulizerjars)
 library(readxl)
 library(scales)
@@ -62,28 +62,14 @@ semana.45<- read.csv2("semana45-04.11.csv") %>% select(-entradas_total..v_is_pel
 semana.45<- semana.45 %>% summarise(estreno=ï..Fecha.Estreno, titulo=ing.Titulo, espectadores.semanales=Espec..Semana, semanas.en.cartelera= Semana.Cartel, pantallas.proyectadas=Pantallas, fecha="04-11-2021", semana=45)
 
 #SEMANA 46
-#semana.46<- read.csv2("semana46-11.11.csv") %>% select(-entradas_total..v_is_pelicula_diario.)
-#semana.46<- semana.46 %>% summarise(estreno=ï..Fecha.Estreno, titulo=ing.Titulo, espectadores.semanales=Espec..Semana, semanas.en.cartelera= Semana.Cartel, pantallas.proyectadas=Pantallas, fecha= "11-11-2021", semana=46)
+semana.46<- read.csv2("semana46-11.11.csv") 
+semana.46<- semana.46 %>% summarise(estreno=ï..Fecha.Estreno, titulo=ing.Titulo, espectadores.semanales=Espec..Semana, semanas.en.cartelera= Semana.Cartel, pantallas.proyectadas=Pantallas, fecha= "11-11-2021", semana=46)
 
-semanas<- bind_rows(semana.36,semana.37,semana.38,semana.39,semana.40,semana.41,semana.42,semana.43,semana.44,semana.45) 
+semanas<- bind_rows(semana.36,semana.37,semana.38,semana.39,semana.40,semana.41,semana.42,semana.43,semana.44,semana.45,semana.46) 
 semanas$fecha<- as.Date(semanas$fecha, "%d-%m-%Y")
 ```
 
-```{r}
-datos.36<- semana.36 %>% summarise( mes="Septiembre",semana=as.Date("2021-09-03"), numero.semana=36, entradas.totales=sum(Espec..Semana))
-datos.37<- semana.37 %>% summarise( mes="Septiembre",semana=as.Date("2021-09-10"), numero.semana=37,  entradas.totales=sum(Espec..Semana))
-datos.38<- semana.38 %>% summarise( mes="Septiembre",semana=as.Date("2021-09-16"), numero.semana=38,  entradas.totales=sum(Espec..Semana))
-datos.39<- semana.39 %>% summarise( mes="Septiembre",semana=as.Date("2021-09-23"), numero.semana=39,  entradas.totales=sum(Espec..Semana))
-datos.40<- semana.40 %>% summarise( mes="Septiembre",semana=as.Date("2021-09-30"), numero.semana=40,  entradas.totales=sum(Espec..Semana))
-datos.41<- semana.41 %>% summarise( mes="Octubre",semana=as.Date("2021-10-07"), numero.semana=41,  entradas.totales=sum(Espec..Semana))
-datos.42<- semana.42 %>% summarise( mes="Octubre",semana=as.Date("2021-10-14"), numero.semana=42,  entradas.totales=sum(Espec..Semana))
-datos.43<- semana.43 %>% summarise( mes="Octubre",semana=as.Date("2021-10-21"), numero.semana=43,  entradas.totales=sum(Espec..Semana))
-datos.44<- semana.44 %>% summarise( mes="Octubre",semana=as.Date("2021-10-28"), numero.semana=44,  entradas.totales=sum(Espec..Semana))
-datos.45<- semana.45 %>% summarise( mes="Noviembre",semana=as.Date("2021-11-04"), numero.semana=45,  entradas.totales=sum(Espec..Semana,na.rm=TRUE))
-datos.46<- semana.46 %>% summarise(mes="Noviembre",semana=as.Date("2021-11-11"), numero.semana=46,  entradas.totales=sum(Espec..Semana))
 
-datos<- bind_rows(datos.36, datos.37,datos.38,datos.39,datos.40,datos.41,datos.42,datos.43,datos.44,datos.45,datos.46)
-```
 
 
 ```{r}
