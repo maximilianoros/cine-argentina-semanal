@@ -78,45 +78,7 @@ semanas$fecha<- as.Date(semanas$fecha, "%d-%m-%Y")
 
 
 
-```{r}
-#Estrenos semana 47
-estrenos.47<- semana.47 %>% filter(Semana.Cartel==1)
 
-estrenos.47$ing.Titulo[grepl("LA CRONICA", estrenos.47$ing.Titulo)]<- "THE FRENCH \nDISPATCH"
-estrenos.47$ing.Titulo[grepl("EL MISTERIO DE SOHO", estrenos.47$ing.Titulo)]<-"LAST NIGHT \nIN SOHO"
-estrenos.47$ing.Titulo[grepl("RIESGO", estrenos.47$ing.Titulo)]<-"THE ICE ROAD"
-estrenos.47$ing.Titulo[grepl("LA CASA DE GUCCI", estrenos.47$ing.Titulo)]<-"HOUSE OF \nGUCCI"
-estrenos.47$ing.Titulo[grepl("RETIROS", estrenos.47$ing.Titulo)]<-"RETIROS \n(IN)VOLUNTARIOS"
-```
-
-```{r}
-grafico.ig<-estrenos.47 %>% filter(ing.Titulo!= "SUPER JUNIOR WORLD TOUR [SUPER SHOW 8 : INFINITE TIME]" & Espec..Semana>257) %>% mutate(ing.Titulo= fct_reorder(ing.Titulo, Espec..Semana))
-
-ggplot(grafico.ig,aes(x=Espec..Semana, y=ing.Titulo, label=Espec..Semana))+
-  geom_bar(stat="identity", fill="#FA8806")+
-  annotate("text",x=1200, y= "RETIROS \n(IN)VOLUNTARIOS", label="258",family="BRLNSR" )+
-  annotate("text",x=2000, y= "ONE PIECE GOLD", label="886",family="BRLNSR" )+
-  annotate("text",x=9500, y= "THE ICE ROAD", label="11381",family="BRLNSR" )+
-  annotate("text",x=13500, y= "LAST NIGHT \nIN SOHO", label="15683",family="BRLNSR" )+
-  annotate("text",x=14500, y= "THE FRENCH \nDISPATCH", label="16508",family="BRLNSR" )+
-  scale_x_continuous()+
-  labs(x="", title="Cine en <span style='color: #FA8806;'>**Argentina**</span>", subtitle = "Los 5 mejores estrenos <br>por espectadores de la semana")+
-  theme(plot.title.position = "plot",
-        plot.title = element_markdown(family="BRLNSR", size=24),
-        plot.subtitle = element_markdown(family="BRLNSR", size=14), 
-        panel.background = element_blank(),axis.ticks = element_blank(),
-        plot.caption = element_markdown(size=8,hjust=0,family = "BRLNSR" ), 
-        text = element_text(family = ""),
-        panel.grid.major = element_blank(),
-        legend.position = "none",
-        legend.box.background =  element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank(), 
-        axis.text = element_markdown(size=9.5,family = "BRLNSR", colour = "BLACK"), 
-        axis.ticks.x = element_blank(),
-        axis.text.x = element_blank(),
-        aspect.ratio = 16/10)
-
-ggsave("cine.argentina.png", height = )
-```
 
 
 
